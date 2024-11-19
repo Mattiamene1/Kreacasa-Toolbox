@@ -15,10 +15,10 @@ const contactCustom = [
         firstname: 'Mattia',
         lastname: 'Meneghin',
         company: 'Mediaworld',
-        businessnum: '3485694030',
+        businessnum: '3483424030',
         mobile: '3401398232',
         mobile2: '3474240567',
-        address: 'Via Postumia Ovest, 42',
+        street: 'Via Postumia Ovest, 42',
         city: 'San Biagio di Callalta',
         state: "Veneto",
         country: "IT"
@@ -30,7 +30,7 @@ const contactCustom = [
         businessnum: '340155666',
         mobile: '3435669987',
         mobile2: '3400000000',
-        address: 'Via Rossi, 78/A',
+        street: 'Via Rossi, 78/A',
         city: 'Maniago',
         state: "Friuli Venezia Giulia",
         country: "IT"
@@ -49,8 +49,11 @@ async function fetchGiobbyContacts() {
         });
 
         if (response.status === 200) {
-            console.log("Contacts fetched successfully.");
-            return response.data.contacts; // Assuming Giobby API returns contacts array
+            console.log("Contacts fetched successfully from Giobby.");
+            console.log(prepeareConstant(response.data.contacts));
+
+            return prepeareConstant(response.data.contacts); // Assuming Giobby API returns contacts array
+
         } else {
             console.error(`Error fetching contacts: ${response.status} - ${response.statusText}`);
             return [];
@@ -61,7 +64,7 @@ async function fetchGiobbyContacts() {
     }
 }
 
-// Give the new contacts list, the actual contact list into Yeastar, the url to post if not exists
+// Give the new contacts list, the actual contact list into Yeastar, the url. ADD into Yeastar if not exists
 async function saveContactsToYeastar(newContacts, yeastarContacts, url) {
     
     newContacts.forEach(contact => {
@@ -139,8 +142,13 @@ async function pushToYeastar(contact, url){
         'Content-Type': 'application/json; charset=utf-8',
     };
 
+    // Create an httpsAgent to disable SSL verification for this request only
+    const agent = new https.Agent({
+        rejectUnauthorized: false // Allow self-signed certificates
+    });
+
     try {
-        const response = await axios.post(url, contact, { headers });
+        const response = await axios.post(url, contact, { headers, httpsAgent: agent });
         return response.data; // Return the response data for further processing.
     } catch (error) {
         console.error('Error adding contact:', error.response ? error.response.data : error.message);
@@ -148,34 +156,24 @@ async function pushToYeastar(contact, url){
     }
 }
 
-// Main function
-(async function main() {
-
-    const contacts = await fetchGiobbyContacts();
-    const yeastarContacts = await retrieveYeastarContactsList();
-
-    if (contacts.length > 0) {
-        //saveContactsToCsv(contacts);
-        saveContactsToCsv(contactCustom);
-        saveContactsToYeastar(contactCustom, yeastarContacts, url); 
-        //saveContactsToYeastar(contacts, url);
-    }
-})();
-
 async function retrieveYeastarContactsList() {
-    const yeastarQueryURL = `https://192.168.100.177:8088/api/v2.0.0/companycontacts/query?token=${token}`
+    const yeastarQueryURL = `https://192.168.100.177:8088/api/v2.0.0/companycontacts/query?token=${token}`;
+    
+    // Create an httpsAgent to disable SSL verification for this request only
+    const agent = new https.Agent({
+        rejectUnauthorized: false // Allow self-signed certificates
+    });
+
     try {
         const response = await axios.post(
             yeastarQueryURL,
             { id: "all" }, // Payload
             {
-                httpsAgent: new https.Agent({
-                    rejectUnauthorized: false, // Allow self-signed certificates
-                }),
+                httpsAgent: agent, // Disable SSL verification for this request
             }
         );
 
-        console.log("Full API Response:", JSON.stringify(response.data, null, 2));
+        //console.log("Full API Response:", JSON.stringify(response.data, null, 2));
 
         // Extract the companycontacts array or use an empty array if undefined
         const contacts = response.data.companycontacts || [];
@@ -208,3 +206,41 @@ async function retrieveYeastarContactsList() {
         throw error; // Re-throw the error for the caller to handle
     }
 }
+
+function prepeareConstant(giobbyResponse) {
+    // Initialize an empty array to hold the transformed data
+    const readyForYeastar = giobbyResponse.map(item => {
+        // Check if the type is a private person or a company and structure the data accordingly
+        let formattedItem = {
+            firstname: item.name || '',
+            lastname: item.lastName || '',
+            company: item.type === 'COMPANY' ? item.name : '',  // For companies, name will be the company name
+            businessnum: item.phone1 || '',  // Assuming phone1 as the business number
+            mobile: item.mobile || '',  // Mobile number
+            mobile2: item.phone2 || '',  // Second mobile or phone number
+            street: item.address || '',  // Street address
+            city: item.city || '',  // City
+            state: item.state || '',  // State
+            country: item.country || ''  // Country
+        };
+
+        // Return the formatted object for this item
+        return formattedItem;
+    });
+
+    return readyForYeastar;
+}
+
+// Main function
+(async function main() {
+
+    const contacts = await fetchGiobbyContacts();                                   // Get all the Giobby Contacts
+    const yeastarContacts = await retrieveYeastarContactsList();                    // Get all the Yeastar Contacts
+
+    if (contacts.length > 0) {
+        //saveContactsToCsv(contacts);
+        //saveContactsToCsv(contactCustom);
+        //saveContactsToYeastar(contactCustom, yeastarContacts, url);             // contactCustom [LIST], yeastarContacts[LIST]
+        //saveContactsToYeastar(contacts, yeastarContacts, url);                  // contacts [LIST]: All Giobby contacts
+    }
+})();
