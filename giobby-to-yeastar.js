@@ -15,9 +15,9 @@ const contactCustom = [
         firstname: 'Mattia',
         lastname: 'Meneghin',
         company: 'Mediaworld',
-        businessnum: '3483424030',
-        mobile: '3401398232',
-        mobile2: '3474240567',
+        businessnum: onlyNumber('3483424030'),
+        mobile: onlyNumber('3401398232'),
+        mobile2: onlyNumber('3474240567'),
         street: 'Via Postumia Ovest, 42',
         city: 'San Biagio di Callalta',
         state: "Veneto",
@@ -27,9 +27,9 @@ const contactCustom = [
         firstname: 'Elena',
         lastname: 'Marcon',
         company: 'Zalando',
-        businessnum: '340155666',
-        mobile: '3435669987',
-        mobile2: '3400000000',
+        businessnum: onlyNumber('340 155666'),
+        mobile: onlyNumber('343-5669987'),
+        mobile2: onlyNumber('340\0000000'),
         street: 'Via Rossi, 78/A',
         city: 'Maniago',
         state: "Friuli Venezia Giulia",
@@ -229,6 +229,11 @@ function prepeareConstant(giobbyResponse) {
     });
 
     return readyForYeastar;
+}
+
+// In Mobile or phone keep only number chars
+function onlyNumber(input) {
+    return input.replace(/\D/g, '').replace(/\s/g, '');
 }
 
 // Main function
