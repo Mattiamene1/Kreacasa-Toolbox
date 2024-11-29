@@ -4,16 +4,51 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
+module.exports = {
+    runScript,      // Export the main script function
+    getYeastarToken,
+    getToken,       // Expose the token getter
+    setToken,       // Expose the token setter (optional, for external updates)
+};
+
+async function runScript() {
+    try {
+        let token = await getYeastarToken();
+        const contacts = await fetchGiobbyContacts();
+        const yeastarContacts = await retrieveYeastarContactsList();
+
+        if (contacts.length > 0) {
+            saveContactsToYeastar(contacts, yeastarContacts);
+        }
+        return "Script executed successfully!";
+    } catch (error) {
+        console.error("Error running the script:", error);
+        throw new Error("Script execution failed: " + error.message);
+    }
+}
+
+
+
 // Load API key from .env
 const GIOBBY_API_KEY = process.env.GIOBBY_API_KEY;
 
 //let token = process.env.YEASTAR_API_KEY;
 let token = null;
 
-// STEP 1 - Retrieve the token from PBX
+// Getter for the token
+function getToken() {
+    return token;
+}
+
+// Setter for the token
+function setToken(newToken) {
+    token = newToken;
+}
+
+// Function to fetch a new token
 async function getYeastarToken() {
     const username = "api";
-    const password = process.env.YEASTAR_PWD_MD5; // Ensure this environment variable contains the MD5-hashed password
+    const password = process.env.YEASTAR_PWD_MD5; // MD5-hashed password from .env
     const host = "192.168.100.177";
     const port = "8260";
     const version = "2.0.0";
@@ -21,18 +56,18 @@ async function getYeastarToken() {
     const endpoint = `http://${host}/api/v${version}/login`;
     const payload = {
         username: username,
-        password: password, // MD5-hashed password from environment
+        password: password,
         port: port,
-        version: version
+        version: version,
     };
 
     try {
         const response = await fetch(endpoint, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json; charset=utf-8"
+                "Content-Type": "application/json; charset=utf-8",
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
@@ -41,13 +76,14 @@ async function getYeastarToken() {
 
         const data = await response.json();
         if (data.status === "Success" && data.token) {
+            setToken(data.token); // Update the module's token
             return data.token;
         } else {
             throw new Error("Failed to retrieve token: " + JSON.stringify(data));
         }
     } catch (error) {
         console.error("Error fetching token:", error);
-        return null;
+        throw error;
     }
 }
 
@@ -66,8 +102,7 @@ async function fetchGiobbyContacts() {
         if (response.status === 200) {
             console.log("===> Contacts fetched successfully from Giobby.");
             //console.log('\n=== GIOBBY CONTACTS ===\n');
-            console.log(prepeareConstant(response.data.contacts));
-
+            //console.log(prepeareConstant(response.data.contacts));
             return prepeareConstant(response.data.contacts); // Assuming Giobby API returns contacts array
 
         } else {
@@ -122,7 +157,7 @@ async function retrieveYeastarContactsList() {
             country: contact.country || ''
         }));
         console.log('===> Contacts fetched succesfully from Yeastar');
-        //console.log('\n === YEASTAR CONTACTS === \n', formattedContacts);
+        console.log('\n === YEASTAR CONTACTS === \n', formattedContacts);
         return formattedContacts; // Return the transformed contacts
     } catch (error) {
         if (error.response) {
@@ -140,7 +175,7 @@ async function saveContactsToYeastar(newContacts, yeastarContacts) {
     let cont = 0;
     newContacts.forEach(contact => {
         
-        console.log("" + contactExists(contact, yeastarContacts))
+        // console.log("" + contactExists(contact, yeastarContacts))
         if(!contactExists(contact, yeastarContacts)){                         // If the same mobile or mobile2 or phone is not used yet, then push it into the Yeastar
             cont++;
             pushToYeastar(contact)
@@ -155,7 +190,6 @@ async function saveContactsToYeastar(newContacts, yeastarContacts) {
                     console.error('Failed to add contact:', error.message);
                 });
         }
-
     });
 
     if(cont>0){
@@ -190,6 +224,11 @@ async function pushToYeastar(contact){
 
     try {
         const response = await axios.post(url, contact, { headers, httpsAgent: agent });
+        if(response.status === 200){
+            console.log(contact.name + ' ' + contact.lastName + ' successfully added');
+        }
+        console.log(response.data);
+        console.log(response.status);
         return response.data; // Return the response data for further processing.
     } catch (error) {
         console.error('Error adding contact:', error.response ? error.response.data : error.message);
@@ -235,193 +274,6 @@ function onlyNumber(input) {
     const yeastarContacts = await retrieveYeastarContactsList();                    // Get all the Yeastar Contacts
 
     if (contacts.length > 0) {
-        //saveContactsToCsv(contacts);
-        //saveContactsToCsv(contactCustom);
-        //saveContactsToYeastar(contactCustom, yeastarContacts, url);             // contactCustom [LIST], yeastarContacts[LIST]
         saveContactsToYeastar(contacts, yeastarContacts);                  // contacts [LIST]: All Giobby contacts
     }
 })();
-
-// Function to keep the token alive indefinitely
-// function keepTokenAlive(token, intervalMinutes = 25) {
-
-//     console.log('=> Initiating the communication: Yeastar token: [' + token + ']');
-//     const intervalMilliseconds = intervalMinutes * 60 * 1000; // Convert minutes to milliseconds
-//     const heartbeatUrl = `https://192.168.100.177:8088/api/v2.0.0/heartbeat?token=${token}`;
-
-//     // Custom HTTPS Agent to bypass SSL verification for self-signed certificates
-//     const agent = new https.Agent({
-//         rejectUnauthorized: false, // Allow self-signed certificates
-//         keepAlive: true, // Keep the connection alive for reuse
-//     });
-
-//     // Headers for the request
-//     const headers = {
-//         'Content-Type': 'application/json; charset=utf-8',
-//         Host: '192.168.100.177',
-//     };
-
-//     // Function to call the heartbeat API
-//     const sendHeartbeat = async () => {
-//         try {
-//             const response = await axios.post(
-//                 heartbeatUrl,
-//                 {
-//                     ipaddr: '192.168.100.177', // IP address of the server
-//                     port: 8088, // Port as per the API
-//                     version: '2.0.0', // API version
-//                 },
-//                 {
-//                     headers: headers,
-//                     httpsAgent: agent, // Use the custom HTTPS agent
-//                 }            
-//             );
-
-//             if (response.status === 200) {
-//                 console.log(`=> Token refreshed successfully at ${new Date().toISOString()}`);
-//                 console.log(`=> Current valid token: ${token}`);
-//             } else {
-//                 await getYeastarToken(process.env.YEASTAR_PWD_MD5)
-//                     .then(() => {
-//                         console.log('=> New Yeastar Token:', token);
-//                     })
-//                     .catch(err => console.error('Failed to get token:', err));
-
-//                 console.log(`=> New token generated`);
-//             }
-//         } catch (error) {
-//             console.error('Error while sending heartbeat:', error);
-//         }
-//     };
-
-//     // Start the interval to send heartbeat requests
-//     sendHeartbeat(); // Call immediately to extend the token validity initially
-//     setInterval(sendHeartbeat, intervalMilliseconds); // Call periodically before expiration
-// }
-
-// What i want to receive from Giobby
-// const contactCustom = [
-//     {
-//         firstname: 'Mattia',
-//         lastname: 'Meneghin',
-//         company: 'Mediaworld',
-//         businessnum: onlyNumber('3483424030'),
-//         mobile: onlyNumber('3401398232'),
-//         mobile2: onlyNumber('3474240567'),
-//         street: 'Via Postumia Ovest, 42',
-//         city: 'San Biagio di Callalta',
-//         state: "Veneto",
-//         country: "IT"
-//     },
-//     {
-//         firstname: 'Elena',
-//         lastname: 'Marcon',
-//         company: 'Zalando',
-//         businessnum: onlyNumber('340 155666'),
-//         mobile: onlyNumber('343-5669987'),
-//         mobile2: onlyNumber('340\ 0000000'),
-//         street: 'Via Rossi, 78/A',
-//         city: 'Maniago',
-//         state: "Friuli Venezia Giulia",
-//         country: "IT"
-//     }
-// ];
-
-// // Function to save contacts to a CSV file
-// function saveContactsToCsv(contacts) {
-//     // Create "export" directory if it doesn't exist
-//     const exportDir = path.join(__dirname, 'export');
-//     if (!fs.existsSync(exportDir)) {
-//         fs.mkdirSync(exportDir, { recursive: true });
-//         console.log(`Directory created: ${exportDir}`);
-//     }
-
-//     // Generate filename with timestamp
-//     const timestamp = new Date().toISOString().replace(/[-:.]/g, '').slice(0, 15);
-//     const filename = path.join(exportDir, `contacts_${timestamp}.csv`);
-
-//     // Define the CSV column headers based on your provided format
-//     const headers = [ "firstname", "lastname", "company", "email", "businessnum", "mobile", "mobile2", "homenum", "street", "city", "state", "country" ];
-
-//     const csvRows = [];
-//     // Add header row
-//     csvRows.push(headers.join(','));
-
-//     // Add data rows based on API response from Giobby
-//     contacts.forEach(contact => {
-//         const row = [
-//             contact.name || "",
-//             contact.lastName || "",
-//             contact.company || "",
-//             contact.email || "",
-//             contact.phone1 || "",  // Work Number
-//             contact.mobile || "",
-//             "", // Mobile 2 (if available)
-//             "", // Home (if available)
-//             contact.address || "",  // Street
-//             contact.city || "",
-//             contact.state || "",
-//             contact.country || ""
-//         ];
-//         csvRows.push(row.join(','));
-//     });
-
-//     // Write to CSV file
-//     fs.writeFileSync(filename, csvRows.join('\n'), 'utf-8');
-
-//     // Log the file path
-//     console.log(`Contacts saved to file: ${filename}`);
-// }
-
-// STEP 3 - Retrieve all Yeastar contacts
-// async function retrieveYeastarContactsList() {
-//     console.log("STEP 3 - Get all Yeastar contacts"):
-//     const yeastarQueryURL = `https://192.168.100.177:8088/api/v2.0.0/companycontacts/query?token=${token}`;
-    
-//     // Create an httpsAgent to disable SSL verification for this request only
-//     const agent = new https.Agent({
-//         rejectUnauthorized: false
-//     });
-
-//     try {
-//         const response = await axios.post(
-//             yeastarQueryURL,
-//             { id: "all" }, // Payload
-//             {
-//                 httpsAgent: agent, // Disable SSL verification for this request
-//             }
-//         );
-
-//         //console.log("Full API Response:", JSON.stringify(response.data, null, 2));
-
-//         // Extract the companycontacts array or use an empty array if undefined
-//         const contacts = response.data.companycontacts || [];
-
-//         if (!Array.isArray(contacts)) {
-//             throw new Error("Invalid response format: expected an array of contacts.");
-//         }
-
-//         // Transform the contacts to the desired format
-//         const formattedContacts = contacts.map(contact => ({
-//             firstname: contact.firstname || '',
-//             lastname: contact.lastname || '',
-//             company: contact.company || '',
-//             businessnum: contact.businessnum || '',
-//             mobile: contact.mobile || '',
-//             mobile2: contact.mobile2 || '',
-//             address: contact.address || '',
-//             city: contact.city || '',
-//             state: contact.state || '',
-//             country: contact.country || ''
-//         }));
-//         console.log('\n === YEASTAR CONTACTS === \n', formattedContacts);
-//         return formattedContacts; // Return the transformed contacts
-//     } catch (error) {
-//         if (error.response) {
-//             console.error("API Response Error:", JSON.stringify(error.response.data, null, 2));
-//         } else {
-//             console.error("Error:", error.message);
-//         }
-//         throw error; // Re-throw the error for the caller to handle
-//     }
-// }

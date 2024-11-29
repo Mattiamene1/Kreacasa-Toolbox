@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sync Giobby to Yeastar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #0078d7;
+            color: white;
+            padding: 1em;
+            text-align: center;
+        }
+        header #token {
+            font-weight: bold;
+        }
+        #response {
+            white-space: pre-line; /* Preserve line breaks */
+            background: #f4f4f4;
+            padding: 1em;
+            border: 1px solid #ccc;
+            max-height: 400px;
+            overflow-y: auto; /* Add scroll for long logs */
+        }
+        button {
+            margin: 1em 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sync Giobby to Yeastar Script Page</h1>
+        <p>Current Yeastar Token: <span id="token">Loading...</span></p>
+    </header>
+
+    <button id="runScriptButton">Sync Contacts</button>
+    <div id="response">Waiting for the script to start...</div>
+
+    <script>
+        // Fetch the current token when the page loads
+        async function fetchToken() {
+            const tokenSpan = document.getElementById('token');
+            try {
+                const response = await fetch('http://localhost:3000/current-token');
+                const data = await response.json();
+                if (data.token) {
+                    tokenSpan.innerText = data.token; // Display the token
+                } else {
+                    tokenSpan.innerText = 'Token not available';
+                }
+            } catch (error) {
+                tokenSpan.innerText = `Error fetching token: ${error.message}`;
+            }
+        }
+
+        // Call fetchToken on page load
+        window.onload = fetchToken;
+
+        // Run script button functionality
+        document.getElementById('runScriptButton').addEventListener('click', () => {
+            const responseDiv = document.getElementById('response');
+            responseDiv.innerText = "";
+
+            // Establish an EventSource connection to stream logs in real-time
+            const eventSource = new EventSource('http://localhost:3000/stream-logs');
+
+            // Display log messages as they arrive
+            eventSource.onmessage = (event) => {
+            const responseDiv = document.getElementById('response');
+            try {
+                // Try parsing the event data as JSON
+                const parsedData = JSON.parse(event.data);
+                responseDiv.innerText += '\n' + JSON.stringify(parsedData, null, 2);
+            } catch (err) {
+                // If parsing fails, treat it as plain text
+                responseDiv.innerText += '\n' + event.data;
+            }
+            responseDiv.scrollTop = responseDiv.scrollHeight; // Auto-scroll
+        };
+
+            // Handle connection errors
+            eventSource.onerror = (error) => {
+                responseDiv.innerText += `\nConnection closed: ${error.message}`;
+                eventSource.close();
+            };
+        });
+    </script>
+</body>
+</html>
