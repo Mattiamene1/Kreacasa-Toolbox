@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  nodejs-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nodejs-app
+    ports:
+      - "3000:3000"  # Maps port 3000 on the host to port 3000 in the container
+    environment:
+      - NODE_ENV=production  # Explicitly set NODE_ENV to production
+    restart: unless-stopped  # Ensures the container restarts automatically unless manually stopped
+    # Volumes are optional in production; use only if needed for persistent data storage
+    # volumes:
+    #   - /path/on/host:/path/in/container
