@@ -2,12 +2,20 @@ const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path');
 const app = express();
+const cors = require('cors');
 const PORT = process.env.PORT || 3000;
 const { runScript, getYeastarToken, getToken, testYeastar, getPublicIP } = require('./giobby-to-yeastar');
 dotenv.config();
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Or, configure specific CORS options
+app.use(cors({
+    origin: 'http://your-frontend-domain.com', // Replace with your frontend's domain
+    methods: 'GET,POST,PUT,DELETE',
+    allowedHeaders: 'Content-Type,Authorization',
+}));
 
 // Endpoint to stream logs
 app.get('/stream-logs', (req, res) => {
