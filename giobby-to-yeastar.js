@@ -220,10 +220,9 @@ async function pushToYeastar(contact){
     const headers = {
         'Content-Type': 'application/json; charset=utf-8',
     };
-
-    // Create an httpsAgent to disable SSL verification for this request only
-    const agent = new https.Agent({
-        rejectUnauthorized: false // Allow self-signed certificates
+    
+    const agent = new https.Agent({     // Create an httpsAgent to disable SSL verification for this request only
+        rejectUnauthorized: false       // Allow self-signed certificates
     });
 
     try {
@@ -285,7 +284,6 @@ async function getPublicIP() {
 function onlyNumber(input) {
     return input.replace(/\D/g, '');
 }
-
 
 async function testYeastar(token) {
     console.log("Testing Yeastar Connection");
