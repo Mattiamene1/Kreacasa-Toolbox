@@ -12,9 +12,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Or, configure specific CORS options
 app.use(cors({
-    origin: 'http://your-frontend-domain.com', // Replace with your frontend's domain
-    methods: 'GET,POST,PUT,DELETE',
-    allowedHeaders: 'Content-Type,Authorization',
+    origin: 'http://192.168.100.170', // Change this to the domain of your frontend if needed
+    methods: ['GET', 'POST'], // Add more methods as needed
+    credentials: true
 }));
 
 // Endpoint to stream logs
