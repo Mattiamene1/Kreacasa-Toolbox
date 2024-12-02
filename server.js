@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
-const { runScript, getYeastarToken, getToken } = require('./giobby-to-yeastar'); // Import token utilities
+const { runScript, getYeastarToken, getToken, testYeastar, getPublicIP } = require('./giobby-to-yeastar');
 dotenv.config();
 
 // Serve static files from the 'public' directory
@@ -35,7 +35,7 @@ app.get('/stream-logs', (req, res) => {
         try {
             sendLog('Starting the script...');
             const result = await runScript();
-            sendLog(`Success: ${result}`);
+            sendLog(`\n[Success]\n ${result}`);
         } catch (error) {
             sendLog(`Error: ${error.message}`);
         } finally {
@@ -43,6 +43,19 @@ app.get('/stream-logs', (req, res) => {
             res.end(); // Close the SSE stream
         }
     })();
+});
+
+app.get('/SyncContacts', async (req, res) => {
+    try {
+        const result = await runScript(); // Array of added contacts
+        res.status(200).json({
+            message: "Fetched Correctly",
+            contactsAdded: result, // Send the added contacts
+        });
+    } catch (error) {
+        console.error("Error adding contacts:", error.message);
+        res.status(500).json({ error: "Failed to add contacts" });
+    }
 });
 
 // Endpoint to get the current token
@@ -60,6 +73,33 @@ app.get('/current-token', async (req, res) => {
     } catch (error) {
         console.error("Error fetching Yeastar token:", error.message);
         res.status(500).json({ error: "Failed to retrieve token" });
+    }
+});
+
+// Test Yeastar Connection
+app.get('/testYeastar', async (req, res) => {
+    try {
+        const status = await testYeastar();
+        res.status(status).send(`Yeastar connection test: [SUCCESS] with status: ${status}`);
+    } catch (error) {
+        res.status(500).send('Yeastar connection test: [FAILED]');
+    }
+});
+
+// Verify public IP
+app.get('/myIP', async (req, res) => {
+    try {
+        // Retrieve the public IP
+        const publicIP = await getPublicIP();
+
+        // Compare with the environment variable
+        if (publicIP === process.env.KREACASA_PUB_IP) {
+            res.status(200).send('IP matched: ' + publicIP);
+        } else {
+            res.status(403).send('You are not in Kreacasa network, your IP is: ' + publicIP );
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
