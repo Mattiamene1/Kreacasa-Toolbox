@@ -8,11 +8,19 @@ const { runScript, getYeastarToken, getToken, testYeastar, getPublicIP } = requi
 dotenv.config();
 
 // Configure CORS to allow requests from your frontend domain
-app.use(cors({
-    origin: 'http://192.168.100.170',  // Replace with your frontend domain if needed
-    methods: 'GET, POST, PUT, DELETE, OPTIONS',
-    allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-}));
+app.use(express.static('public'))
+app.use(express.urlencoded({ extended: false }));
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');                                                                 // Allow requests from any origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');                                  // Allow these HTTP methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');    // Allow these headers
+   
+    res.header("Cache-Control", "no-cache, no-store, must-revalidate");                                             // HTTP 1.1.
+    res.header("Pragma", "no-cache");                                                                               // HTTP 1.0.
+    res.header("Expires", "0");                                                                                     // Proxies.
+
+    next();
+});
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
