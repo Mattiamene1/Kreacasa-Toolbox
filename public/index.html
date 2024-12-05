@@ -34,6 +34,43 @@
         button {
             margin: 1em 0;
         }
+        #links a {
+            display: inline-block; /* Makes the margin apply properly */
+            margin: 10px; /* Adds 10px margin around each anchor */
+            text-decoration: none; /* Removes underline from the links */
+            position: relative; /* To allow for pseudo-element positioning */
+        }
+
+        #links a img {
+            display: block; /* Ensures the images behave like block elements */
+            max-width: 100%; /* Keeps images responsive */
+        }
+
+        #links a:hover::after {
+            content: ""; /* Creates a pseudo-element for the bottom border */
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px; /* Thickness of the bottom border */
+            background-color: white; /* White border color */
+            transform: scaleX(1); /* Shows the border on hover */
+            transform-origin: left;
+        }
+
+        #links a::after {
+            content: ""; /* Creates a pseudo-element for the bottom border */
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px; /* Thickness of the bottom border */
+            background-color: transparent; /* Invisible when not hovered */
+            transform: scaleX(0); /* Hides the border */
+            transform-origin: left;
+            transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth transition for hover effect */
+        }
+
     </style>
 </head>
 <body>
@@ -59,7 +96,10 @@
             <a href="http://192.168.100.170:8001/" target="_blank">
                 <img src="./assets/img/2fauth.png" alt="2 Factor Authenticator">
             </a>
-            
+            <a href="http://192.168.100.253/" target="_blank">
+                <img src="./assets/img/zabbix.png" alt="Zabbix Monitoring">
+            </a>
+
         </div>
         
         <div id="tools">
@@ -69,8 +109,6 @@
     </header>
 
     <div id="response">Waiting for actions...</div>
-    
-
 
     <!-- Test Yeastar Connection -->
     <script>
