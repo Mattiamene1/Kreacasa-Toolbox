@@ -88,7 +88,7 @@ app.get('/current-token', async (req, res) => {
             console.log("Token fetched successfully:", currentToken);
         }
 
-        res.json({ token: currentToken });
+        res.status(200).json({ token: currentToken });
     } catch (error) {
         console.error("Error fetching Yeastar token:", error.message);
         res.status(500).json({ error: "Failed to retrieve token" });
