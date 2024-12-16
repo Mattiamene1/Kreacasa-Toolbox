@@ -8,6 +8,10 @@ const { runScript, getYeastarToken, getToken, testYeastar, getPublicIP } = requi
 dotenv.config();
 
 // Configure CORS to allow requests from your frontend domain
+app.use(cors({
+    origin: 'http://192.168.100.170:3000' // Allow requests only from this origin
+}));
+
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: false }));
 app.use((req, res, next) => {
