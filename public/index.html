@@ -123,7 +123,6 @@
 
                 const responseToken = await fetch('/current-token');
                 const data = await responseToken.json();
-                const tokenTxt = await responseToken.text();
 
                 // Check if the response status is 200 (success)
                 if (response.status === 200) {
@@ -135,7 +134,7 @@
                     responseDiv.style.color = 'green'; // Set text color to green for success
                 } else {
                     responseDiv.innerText = `Error: ${text}`; // Display error message
-                    responseDiv.innerText += `${tokenTxt}`;
+                    responseDiv.innerText += `${data}`;
                     responseDiv.style.color = 'red'; // Set text color to red for failure
                 }
             } catch (error) {
