@@ -73,7 +73,7 @@ app.get('/SyncContacts', async (req, res) => {
         });
     } catch (error) {
         console.error("Error adding contacts:", error.message);
-        res.status(500).json({ error: "Failed to add contacts" });
+        res.status(500).json({ error: "Failed to add contacts\n" + error.message });
     }
 });
 
@@ -91,7 +91,7 @@ app.get('/current-token', async (req, res) => {
         res.status(200).json({ token: currentToken });
     } catch (error) {
         console.error("Error fetching Yeastar token:", error.message);
-        res.status(500).json({ error: "Failed to retrieve token" });
+        res.status(500).json({ error: "Failed to retrieve token\n" + error.message });
     }
 });
 
