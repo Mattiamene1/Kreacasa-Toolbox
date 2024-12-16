@@ -41,7 +41,6 @@ async function runScript() {
 // Load API key from .env
 const GIOBBY_API_KEY = process.env.GIOBBY_API_KEY;
 
-//let token = process.env.YEASTAR_API_KEY;
 let token = null;
 
 // Getter for the token
