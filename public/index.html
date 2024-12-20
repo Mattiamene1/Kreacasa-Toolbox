@@ -75,6 +75,13 @@
 </head>
 <body>
     <header>
+        <div>Last Update:</br>
+        <p id="actualDate"></p> 
+        <script>
+            var date = new Date(document.lastModified) //.toISOString().substr(0, 10);
+            document.getElementById("actualDate").innerHTML = date;
+        </script>
+        </div>
         <h1>Kreacasa Toolbox <i class="fa fa-toolbox"></i></h1>
         <!-- <p>In postman try</br>https://192.168.100.177:8088/api/v2.0.0/companycontacts/query?token=</p> -->
         <!-- <p>Current Yeastar Token: <span id="token">Loading...</span></p> -->
@@ -135,8 +142,8 @@
                     }
                     responseDiv.style.color = 'green'; // Set text color to green for success
                 } else {
-                    responseDiv.innerText = `Error: ${text} | ${response.status}`; // Display error message
-                    responseDiv.innerText += `Error: ${data}  | ${responseToken.status}`;
+                    responseDiv.innerText = `Error: ${text.error} | ${response.status}`; // Display error message
+                    responseDiv.innerText += `Error: ${data.error}  | ${responseToken.status}`;
                     responseDiv.style.color = 'red'; // Set text color to red for failure
                 }
             } catch (error) {
