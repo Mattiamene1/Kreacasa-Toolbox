@@ -41,7 +41,7 @@ async function runScript() {
 // Load API key from .env
 const GIOBBY_API_KEY = process.env.GIOBBY_API_KEY;
 
-let token = null;
+let token = "default";
 
 // Getter for the token
 function getToken() { return token; }

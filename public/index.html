@@ -128,7 +128,8 @@
                 const response = await fetch('/testYeastar');
                 const text = await response.text(); // Get response as plain text
 
-                const responseToken = await fetch('/current-token');
+                console.log("Debug1");
+                const responseToken = await fetch('/currentToken');
                 console.log("Token Status: " + responseToken.status);
                 const data = await responseToken.text();
                 //const dataJson = await responseToken.json();
@@ -142,7 +143,7 @@
                     }
                     responseDiv.style.color = 'green'; // Set text color to green for success
                 } else {
-                    responseDiv.innerText = `Error: ${text} | ${response.status}`; // Display error message
+                    responseDiv.innerText = `Error: ${text}`; // Display error message
                     responseDiv.innerText += `Error: ${data}  | ${responseToken.status}`;
                     responseDiv.style.color = 'red'; // Set text color to red for failure
                 }

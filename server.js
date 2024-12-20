@@ -78,11 +78,11 @@ app.get('/SyncContacts', async (req, res) => {
 });
 
 // Endpoint to get the current token
-app.get('/current-token', async (req, res) => {
+app.get('/currentToken', async (req, res) => {
     try {
         // Check if token is already available
         let currentToken = getToken(); // Retrieve token from the module
-        if (!currentToken) {
+        if (currentToken != 'default') {
             console.log("Fetching new token...");
             currentToken = await getYeastarToken(); // Fetch a new token
             console.log("Token fetched successfully:", currentToken);
