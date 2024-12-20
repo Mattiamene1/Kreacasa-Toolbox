@@ -124,7 +124,7 @@
                 const responseToken = await fetch('/current-token');
                 console.log("Token Status: " + responseToken.status);
                 const data = await responseToken.text();
-                const dataJson = await responseToken.json();
+                //const dataJson = await responseToken.json();
 
                 // Check if the response status is 200 (success)
                 if (response.status === 200 && responseToken.status === 200) {
