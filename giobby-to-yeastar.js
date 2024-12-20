@@ -256,6 +256,7 @@ function prepeareConstant(giobbyResponse) {
             businessnum: onlyNumber(item.phone1) || '',  // Assuming phone1 as the business number
             mobile: onlyNumber(item.mobile) || '',  // Mobile number
             mobile2: onlyNumber(item.phone2) || '',  // Second mobile or phone number
+            email: item.email || '',
             street: item.address || '',  // Street address
             city: item.city || '',  // City
             state: item.state || '',  // State

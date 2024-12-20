@@ -172,6 +172,7 @@
                 // Handle response based on status and returned data
                 if (response.ok) {
                     if (data.contactsAdded && data.contactsAdded.length > 0) {
+                        responseDiv.style.color = 'black';
                         responseDiv.innerHTML = `
                             <p style="color: green;">${data.contactsAdded.length} contacts added successfully.</p>
                             <table style="border-collapse: collapse; width: 100%; margin-top: 20px;">
@@ -179,6 +180,7 @@
                                     <tr>
                                         <th style="border: 1px solid black; padding: 8px; text-align: left;">First Name</th>
                                         <th style="border: 1px solid black; padding: 8px; text-align: left;">Last Name</th>
+                                        <th style="border: 1px solid black; padding: 8px; text-align: left;">Email</th>
                                         <th style="border: 1px solid black; padding: 8px; text-align: left;">Telephone</th>
                                         <th style="border: 1px solid black; padding: 8px; text-align: left;">Mobile</th>
                                         <th style="border: 1px solid black; padding: 8px; text-align: left;">Mobile 2</th>
@@ -189,7 +191,9 @@
                                         <tr>
                                             <td style="border: 1px solid black; padding: 8px;">${contact.firstname}</td>
                                             <td style="border: 1px solid black; padding: 8px;">${contact.lastname}</td>
+                                            <td style="border: 1px solid black; padding: 8px;">${contact.mobile}</td>
                                             <td style="border: 1px solid black; padding: 8px;">${contact.businessnum}</td>
+                                            <td style="border: 1px solid black; padding: 8px;">${contact.mobile}</td>
                                             <td style="border: 1px solid black; padding: 8px;">${contact.mobile}</td>
                                             <td style="border: 1px solid black; padding: 8px;">${contact.mobile2}</td>
                                         </tr>
