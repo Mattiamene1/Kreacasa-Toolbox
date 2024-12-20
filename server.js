@@ -82,10 +82,12 @@ app.get('/currentToken', async (req, res) => {
     try {
         // Check if token is already available
         let currentToken = getToken(); // Retrieve token from the module
-        if (currentToken != 'default') {
+        if (currentToken === 'default') {
             console.log("Fetching new token...");
             currentToken = await getYeastarToken(); // Fetch a new token
             console.log("Token fetched successfully:", currentToken);
+            token = currentToken;
+            console.log("Global token value: " + currentToken);
         }
 
         res.status(200).json({ token: currentToken });
