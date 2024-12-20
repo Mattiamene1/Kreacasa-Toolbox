@@ -3,6 +3,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const fetch = require('node-fetch');
 
 module.exports = {
     runScript,      // Export the main script function
