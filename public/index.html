@@ -137,7 +137,7 @@
                 // Check if the response status is 200 (success)
                 if (response.status === 200 && responseToken.status === 200) {
                     responseDiv.innerText = text; // Display the response text
-                    console.log("data.token: " + data.token.toString());
+                    console.log("data.token: " + data.token.text());
                     if (data.token) {
                         responseDiv.innerText += '\n Token: ' + data.token; // Display the token
                     }
