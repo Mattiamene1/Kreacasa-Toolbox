@@ -142,8 +142,8 @@
                     }
                     responseDiv.style.color = 'green'; // Set text color to green for success
                 } else {
-                    responseDiv.innerText = `Error: ${text.error} | ${response.status}`; // Display error message
-                    responseDiv.innerText += `Error: ${data.error}  | ${responseToken.status}`;
+                    responseDiv.innerText = `Error: ${text} | ${response.status}`; // Display error message
+                    responseDiv.innerText += `Error: ${data}  | ${responseToken.status}`;
                     responseDiv.style.color = 'red'; // Set text color to red for failure
                 }
             } catch (error) {
