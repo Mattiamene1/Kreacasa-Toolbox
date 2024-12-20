@@ -76,7 +76,7 @@ async function getYeastarToken() {
         }
 
         const data = await response.json();
-        if (data.status === "Success" && data.token) {
+        if (data.status === "Success" && data.token != 'default') {
             setToken(data.token); // Update the module's token
             console.log('===> Got the Yeastar token succesfully');
             return data.token;
