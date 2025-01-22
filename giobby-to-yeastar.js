@@ -12,6 +12,8 @@ module.exports = {
     getPublicIP,
     getToken,       // Expose the token getter
     setToken,       // Expose the token setter (optional, for external updates)
+    fetchGiobbyOrder,
+    getSpedizioneValue
 };
 
 async function runScript() {
@@ -313,4 +315,42 @@ async function testYeastar(token) {
             throw error; // Re-throw for the caller to handle
         }
     }
+}
+
+// Retrieve info about a order by using ID
+async function fetchGiobbyOrder(id) {
+    const giobbyApiUrl = `https://qa.giobby.com/GiobbyApi00551/v1/sales/${id}/orders`;
+    console.log("Request URL:", giobbyApiUrl);
+
+    try {
+        const response = await axios.get(giobbyApiUrl, {
+            headers: {
+                Authorization: `Bearer ${GIOBBY_API_KEY}`,
+                Accept: 'application/json',
+            },
+        });
+        console.log("Status:" + response.status);
+        if (response.status === 200) {
+            console.log("===> Order fetched successfully from Giobby.");
+            return response.data;
+        } else if (response.status === 404) {
+            console.error(`===> Order with ID: [${id}] not found`);
+            return { error: `Order with ID ${id} not found.` };
+        }
+    } catch (error) {
+        console.error("===> An error occurred:", error.message);
+        return { error: "Failed to fetch order. Please try again later." };
+    }
+}
+
+async function getSpedizioneValue(order) {
+    const rows = order.document.rows;
+    
+    for (const row of rows) {
+        if (row.description === 'Spedizione Non codificata' && row.idMaterial === null) {
+            console.log(row.description + " - " + row.price + "€ - Codice: " + row.idMaterial);
+            return row.price;
+        }
+    }
+    return "0"; 
 }
