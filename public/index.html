@@ -114,6 +114,7 @@
         <div id="tools">
             <button id="testYeastar">Test Yeastar</button>
             <button id="SyncContacts">Syncronize Giobby Contacts</button>
+            <!--<button id="executeBtn">Giobby Export</button>-->
             <button id="getCostoSpedizione">Spedizione non codificata</button>
             <input type="text" id="idInput" placeholder="Enter Order ID">
         </div>
@@ -234,7 +235,7 @@
             alert("Please enter an ID.");
           } else {
             // Make the request to the backend with the given ID
-            const url = `http://localhost:3000/order/${orderId}/costoSpedizione`;
+            const url = `http://localhost:3000/order/${orderId}/costoSpedizione`;  // ******************************************USARE IP E MODIFICARE AWAIT
             
             fetch(url)
               .then(response => response.json())  // Assuming the server returns JSON
@@ -248,5 +249,41 @@
           }
         });
       </script>
+
+    <!-- <script>
+        // Select the button and status paragraph
+        const executeBtn = document.getElementById('executeBtn');
+        const statusEl = document.getElementById('response');
+
+        // Set up the event listener for the button
+        executeBtn.addEventListener('click', async () => {
+            // The command that you want to execute remotely
+            const command = 'Start-Process -FilePath "C:\\Users\\vM\\Desktop\\run_py.bat" -Wait';
+
+            // Show loading status
+            statusEl.textContent = 'Executing script...';
+
+            try {
+                // Send POST request to the backend server
+                const response = await fetch('http://localhost:3000/execute', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ command: command }),
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    statusEl.textContent = `Success: ${result.message}`;
+                } else {
+                    statusEl.textContent = `Error: ${result.message}`;
+                }
+            } catch (error) {
+                statusEl.textContent = `Error: ${error.message}`;
+            }
+        });
+    </script> -->
 </body>
 </html>

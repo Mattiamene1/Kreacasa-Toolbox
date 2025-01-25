@@ -1,7 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path');
-const cors = require('cors');  // Import the cors library
+const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const { runScript, getYeastarToken, getToken, testYeastar, getPublicIP, fetchGiobbyOrder, getSpedizioneValue } = require('./giobby-to-yeastar');
@@ -12,6 +12,7 @@ app.use(cors({
     origin: 'http://192.168.100.170:3000' // Allow requests only from this origin
 }));
 
+app.use(bodyParser.json());
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: false }));
 app.use((req, res, next) => {
@@ -159,6 +160,35 @@ app.get('/order/:id/costoSpedizione', async (req, res) => {
     }
 });
 
+// // Execute Script To Export From Giobby DB of BI
+// app.post('/execute', (req, res) => {
+//     const { command } = req.body; // Command to be executed remotely (sanitize and validate input as needed)
+
+//     if (!command) {
+//         return res.status(400).json({ message: 'Command is required' });
+//     }
+
+//     // Get credentials and IP address from environment variables
+//     const vmIp = process.env.VMIP;
+//     const vmUsername = process.env.VMUSERNAME;
+//     const vmPassword = process.env.VMPASSWORD;
+
+//     if (!vmIp || !vmUsername || !vmPassword) {
+//         return res.status(500).json({ message: 'Missing environment variables for VM connection' });
+//     }
+
+//     // Construct PowerShell command for remote execution using environment variables
+//     const remoteCommand = `powershell -Command "Invoke-Command -ComputerName ${vmIp} -ScriptBlock {${command}} -Credential (New-Object System.Management.Automation.PSCredential('${vmUsername}', (ConvertTo-SecureString '${vmPassword}' -AsPlainText -Force)))"`;
+
+//     // Execute the command
+//     exec(remoteCommand, (error, stdout, stderr) => {
+//         if (error) {
+//             console.error(`exec error: ${error}`);
+//             return res.status(500).json({ message: `Execution failed: ${stderr}` });
+//         }
+//         res.json({ message: `Command executed successfully: ${stdout}` });
+//     });
+// });
 
 // Start the server
 app.listen(PORT, () => {
