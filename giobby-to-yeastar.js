@@ -319,7 +319,7 @@ async function testYeastar(token) {
 
 // Retrieve info about a order by using ID
 async function fetchGiobbyOrder(id) {
-    const giobbyApiUrl = `https://qa.giobby.com/GiobbyApi00551/v1/sales/${id}/orders`;
+    const giobbyApiUrl = `https://app.giobby.com/GiobbyApi00551/v1/sales/${id}/orders`;
     console.log("Request URL:", giobbyApiUrl);
 
     try {
@@ -329,7 +329,7 @@ async function fetchGiobbyOrder(id) {
                 Accept: 'application/json',
             },
         });
-        console.log("Status:" + response.status);
+        
         if (response.status === 200) {
             console.log("===> Order fetched successfully from Giobby.");
             return response.data;
@@ -344,13 +344,22 @@ async function fetchGiobbyOrder(id) {
 }
 
 async function getSpedizioneValue(order) {
+    //console.log("Order: " + order.document.rows[5].description);
     const rows = order.document.rows;
+
+    // const str = "SPESE DI SPEDIZIONE TEMPISTICHE: settimana del 11/03"
+    // if (/spedizione/i.test(str) || /trasp/i.test(str)){
+    //     console.log("Beccato!");
+    // }
     
     for (const row of rows) {
-        if (row.description === 'Spedizione Non codificata' && row.idMaterial === null) {
-            console.log(row.description + " - " + row.price + "€ - Codice: " + row.idMaterial);
+        //console.log("Stringa: " + row.description)
+        //if (row.description === 'Spedizione Non codificata' && row.idMaterial === null) {
+        if ((/spediz/i.test(row.description) && row.idMaterial === null) || (/trasp/i.test(row.idMaterial))){
+            console.log(row.description.toString() + " - " + row.price + "€ - Codice: " + row.idMaterial);
             return row.price;
         }
     }
     return "0"; 
 }
+

@@ -12,7 +12,6 @@ app.use(cors({
     origin: 'http://192.168.100.170:3000' // Allow requests only from this origin
 }));
 
-app.use(bodyParser.json());
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: false }));
 app.use((req, res, next) => {
