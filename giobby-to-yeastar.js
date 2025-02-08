@@ -13,7 +13,9 @@ module.exports = {
     getToken,       // Expose the token getter
     setToken,       // Expose the token setter (optional, for external updates)
     fetchGiobbyOrder,
-    getSpedizioneValue
+    getSpedizioneValueOrder,
+    fetchGiobbyInvoice,
+    getSpedizioneValueInvoice
 };
 
 async function runScript() {
@@ -343,7 +345,7 @@ async function fetchGiobbyOrder(id) {
     }
 }
 
-async function getSpedizioneValue(order) {
+async function getSpedizioneValueOrder(order) {
     //console.log("Order: " + order.document.rows[5].description);
     const rows = order.document.rows;
 
@@ -360,6 +362,51 @@ async function getSpedizioneValue(order) {
             return row.price;
         }
     }
-    return "0"; 
+    return 0; 
 }
 
+// ======================================
+// Retrieve info about a invoice by using ID
+async function fetchGiobbyInvoice(id) {
+    const giobbyApiUrl = `https://app.giobby.com/GiobbyApi00551/v1/sales/${id}/invoices`;
+    console.log("Request URL:", giobbyApiUrl);
+
+    try {
+        const response = await axios.get(giobbyApiUrl, {
+            headers: {
+                Authorization: `Bearer ${GIOBBY_API_KEY}`,
+                Accept: 'application/json',
+            },
+        });
+        
+        if (response.status === 200) {
+            console.log("===> invoice fetched successfully from Giobby.");
+            return response.data;
+        } else if (response.status === 404) {
+            console.error(`===> Invoice with ID: [${id}] not found`);
+            return { error: `Invoice with ID ${id} not found.` };
+        }
+    } catch (error) {
+        console.error("===> An error occurred:", error.message);
+        return { error: "Failed to fetch invoice. Please try again later." };
+    }
+}
+
+async function getSpedizioneValueInvoice(invoice) {             // Id = 17802 Spese = 45
+    const rows = invoice.document.rows;
+
+    // const str = "SPESE DI SPEDIZIONE TEMPISTICHE: settimana del 11/03"
+    // if (/spedizione/i.test(str) || /trasp/i.test(str)){
+    //     console.log("Beccato!");
+    // }
+    
+    for (const row of rows) {
+        //console.log("Stringa: " + row.description)
+        //if (row.description === 'Spedizione Non codificata' && row.idMaterial === null) {
+        if ((/spediz/i.test(row.description) && row.idMaterial === null) || (/trasp/i.test(row.idMaterial))){
+            console.log(row.description.toString() + " - " + row.price + "€ - Codice: " + row.idMaterial);
+            return row.price;
+        }
+    }
+    return 0; 
+}

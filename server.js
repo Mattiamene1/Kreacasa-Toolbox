@@ -4,7 +4,7 @@ const path = require('path');
 const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
-const { runScript, getYeastarToken, getToken, testYeastar, getPublicIP, fetchGiobbyOrder, getSpedizioneValue } = require('./giobby-to-yeastar');
+const { runScript, getYeastarToken, getToken, testYeastar, getPublicIP, fetchGiobbyOrder, getSpedizioneValueOrder, fetchGiobbyInvoice,  } = require('./giobby-to-yeastar');
 dotenv.config();
 
 // Configure CORS to allow requests from your frontend domain
@@ -145,7 +145,7 @@ app.get('/order/:id/costoSpedizione', async (req, res) => {
     const id = req.params.id;
     try {
         const order = await fetchGiobbyOrder(id);
-        const price = await getSpedizioneValue(order);
+        const price = await getSpedizioneValueOrder(order);
         if (order.error) {
             res.status(404).json({ error: order.error });
         } else if (order.status === "404"){
@@ -156,6 +156,24 @@ app.get('/order/:id/costoSpedizione', async (req, res) => {
     } catch (error) {
         console.error("Error fetching order:", error.message);
         res.status(500).json({ error: "An error occurred while fetching the order." });
+    }
+});
+
+app.get('/invoice/:id/costoSpedizione', async (req, res) => {
+    const id = req.params.id;
+    try {
+        const invoice = await fetchGiobbyInvoice(id);
+        const price = await getSpedizioneValueOrder(invoice);
+        if (invoice.error) {
+            res.status(404).json({ error: invoice.error });
+        } else if (invoice.status === "404"){
+            res.status(404).json({ message: "Invoice Not Found"})
+        }else {
+            res.status(200).json(price);
+        }
+    } catch (error) {
+        console.error("Error fetching invoice:", error.message);
+        res.status(500).json({ error: "An error occurred while fetching the invoice." });
     }
 });
 
