@@ -115,7 +115,8 @@
             <button id="testYeastar">Test Yeastar</button>
             <button id="SyncContacts">Syncronize Giobby Contacts</button>
             <!--<button id="executeBtn">Giobby Export</button>-->
-            <button id="getCostoSpedizione">Spedizione non codificata</button>
+            <button id="getCostoSpedizioneOrder">ORDINE: Spedizione non codificata</button>
+            <button id="getCostoSpedizioneInvoice">FATTURA: Spedizione non codificata</button>
             <input type="text" id="idInput" placeholder="Order ID" style="width: 50px;">
         </div>
     </header>
@@ -226,7 +227,7 @@
 
     <!-- Script to retrieve Costo di spedizione non codificato -->
     <script>
-        document.getElementById("getCostoSpedizione").addEventListener('click', async () => {
+        document.getElementById("getCostoSpedizioneOrder").addEventListener('click', async () => {
             const responseDiv = document.getElementById('response');
             responseDiv.innerText = ``;
             responseDiv.style.color = 'black';
@@ -268,7 +269,51 @@
                 }
             }
         });
-      </script>
+    </script>
+
+    <script>
+        document.getElementById("getCostoSpedizioneInvoice").addEventListener('click', async () => {
+            const responseDiv = document.getElementById('response');
+            responseDiv.innerText = ``;
+            responseDiv.style.color = 'black';
+            // Get the ID from the input field
+            const orderId = document.getElementById("idInput").value.trim();
+            responseDiv.innerText = `Costo di spedizione per la fattura ID ${orderId}: `
+            
+            // Check if the ID is empty
+            if (!orderId) {
+                alert("Please enter an ID.");
+            } else {
+
+                const urlInvoice = `/invoice/${orderId}/costoSpedizione`;   // Fattura N° R1-3/25del 31/01/25 | id=17797
+
+                try {
+                    const response = await fetch(urlInvoice);
+                    const data = await response.json();
+
+                    console.log(data);
+
+                    // Handle response based on status and returned data
+                    if (response.ok) {
+                        if (data) {
+                            responseDiv.style.color = 'green';
+                            responseDiv.innerHTML += `${data} €`;
+                        } else {
+                            responseDiv.style.color = 'orange';
+                            responseDiv.innerHTML = "Nessun costo di spedizione trovato.";
+                        }
+                    } else {
+                        responseDiv.style.color = 'red';
+                        responseDiv.innerHTML = "Errore nel recupero dei dati.";
+                    }
+                } catch (error) {
+                    console.error("Error fetching the data:", error);
+                    responseDiv.style.color = 'red';
+                    responseDiv.innerHTML = "Si è verificato un errore durante il recupero dei dati.";
+                }
+            }
+        });
+    </script>
 
     <!-- <script>
         // Select the button and status paragraph
