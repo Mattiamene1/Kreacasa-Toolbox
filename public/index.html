@@ -240,6 +240,7 @@
             } else {
                 //const urlOrder = `http://localhost:3000/order/${orderId}/costoSpedizione`;  // ******************************************USARE IP E MODIFICARE AWAIT R1-3/87 | id=5853
                 const urlOrder = `/order/${orderId}/costoSpedizione`;
+                console.lof(urlOrder);
                 // const urlInvoice = `http://localhost:3000/invoice/${orderId}/costoSpedizione`;
 
                 try {
@@ -254,7 +255,7 @@
                             responseDiv.style.color = 'green';
                             responseDiv.innerHTML += `${data} €`;
                         } else {
-                            responseDiv.style.color = 'red';
+                            responseDiv.style.color = 'orange';
                             responseDiv.innerHTML = "Nessun costo di spedizione trovato.";
                         }
                     } else {
