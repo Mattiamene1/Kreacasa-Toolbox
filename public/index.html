@@ -238,32 +238,15 @@
             if (!orderId) {
                 alert("Please enter an ID.");
             } else {
-                // Make the request to the backend with the given ID
-                const url = `http://localhost:3000/order/${orderId}/costoSpedizione`;  // ******************************************USARE IP E MODIFICARE AWAIT R1-3/87 | id=5853
-                
-                // fetch(url)
-                //     .then(response => response.json(){
-                //         if (response.ok) {
-                //             if (data.contactsAdded && data.contactsAdded.length > 0) {
-                //                 responseDiv.style.color = 'black';
-                //                 responseDiv.innerHTML = `Spese di spedizione: ${response.json()}`;
-                //             }
-                //         }
-                //     })  // Assuming the server returns JSON
-                //     .then(price => {
-                //     console.log(price);  // Handle the response data
-                //     // You can also update the UI with the received data if necessary
-                //   })
-                //   .catch(error => {
-                //     console.error("Error fetching the data:", error);
-                //   });
-                // }
-                try {
-                    // Fetch the response from the API
-                    const response = await fetch(url);
-                    const data = await response.json(); // Parse JSON response
+                //const urlOrder = `http://localhost:3000/order/${orderId}/costoSpedizione`;  // ******************************************USARE IP E MODIFICARE AWAIT R1-3/87 | id=5853
+                const urlOrder = `/order/${orderId}/costoSpedizione`;
+                // const urlInvoice = `http://localhost:3000/invoice/${orderId}/costoSpedizione`;
 
-                    console.log(data); // Log the response data
+                try {
+                    const response = await fetch(urlOrder);
+                    const data = await response.json();
+
+                    console.log(data);
 
                     // Handle response based on status and returned data
                     if (response.ok) {
