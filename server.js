@@ -163,7 +163,9 @@ app.get('/invoice/:id/costoSpedizione', async (req, res) => {
     const id = req.params.id;
     try {
         const invoice = await fetchGiobbyInvoice(id);
+        console.log("Fetched ID " + id);
         const price = await getSpedizioneValueOrder(invoice);
+        console.log("Price " + price);
         if (invoice.error) {
             res.status(404).json({ error: invoice.error });
         } else if (invoice.status === "404"){
