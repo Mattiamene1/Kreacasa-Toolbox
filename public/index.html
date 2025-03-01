@@ -225,7 +225,7 @@
         });
     </script>
 
-    <!-- Script to retrieve Costo di spedizione non codificato -->
+    <!-- Script to retrieve Costo di spedizione of a ORDER -->
     <script>
         document.getElementById("getCostoSpedizioneOrder").addEventListener('click', async () => {
             const responseDiv = document.getElementById('response');
@@ -239,15 +239,11 @@
             if (!orderId) {
                 alert("Please enter an ID.");
             } else {
-                //const urlOrder = `http://localhost:3000/order/${orderId}/costoSpedizione`;  // ******************************************USARE IP E MODIFICARE AWAIT R1-3/87 | id=5853
-                const urlOrder = `/order/${orderId}/costoSpedizione`;
-                // const urlInvoice = `http://localhost:3000/invoice/${orderId}/costoSpedizione`;
+                const urlOrder = `/order/${orderId}/costoSpedizione`;       // Ordine N° R1-3/42del 04/02/25 | ID=7072
 
                 try {
                     const response = await fetch(urlOrder);
                     const data = await response.json();
-
-                    console.log(data);
 
                     // Handle response based on status and returned data
                     if (response.ok) {
@@ -271,6 +267,7 @@
         });
     </script>
 
+    <!-- Script to retrieve Costo di spedizione of a INVOICE -->
     <script>
         document.getElementById("getCostoSpedizioneInvoice").addEventListener('click', async () => {
             const responseDiv = document.getElementById('response');
@@ -290,8 +287,6 @@
                 try {
                     const response = await fetch(urlInvoice);
                     const data = await response.json();
-
-                    console.log(data);
 
                     // Handle response based on status and returned data
                     if (response.ok) {
